@@ -21,9 +21,6 @@ namespace StudentManager
 
 		static void Main(string[] args)
 		{
-			// combining array lengths to find the range of selectable menu options
-			int menuOptionCount = StudentOptions.Length + StudentParsingOptions.Length + ProgramOptions.Length;
-
 			while (_loopMain)
 			{
 				PrintMenu();
