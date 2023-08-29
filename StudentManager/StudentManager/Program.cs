@@ -119,33 +119,37 @@ namespace StudentManager
 		/// </summary>
 		static void AddStudent()
 		{
-			Student student = new Student();
+			// declaring variables
+			string name = " ";
+			int id = 0;
+			string[] grades;
 
 			// Loop until we get a unique ID
 			while (true)
 			{
 				Console.Write("Enter student ID: ");
-				int tempID = GenericReadLine.TryReadLine<int>();
-
-				if (StudentExists(tempID))
+				id = GenericReadLine.TryReadLine<int>();
+				
+				if (StudentExists(id))
 				{
 					Console.WriteLine("Student with this ID already exists.");
 				}
 				else
 				{
-					student.ID = tempID;
 					break;
 				}
 			}
-
+			
+			// if the user enters nothing, we set the name to a space to prevent null exceptions
 			Console.Write("Enter student name: ");
-			student.Name = Console.ReadLine();
+			name = Console.ReadLine() ?? " ";
 
 			Console.Write("Enter grades (separated by spaces): ");
-			string[] studentGrades = Console.ReadLine().Split(' ');
-
-			AddGrades(studentGrades, student);
-
+			grades = Console.ReadLine().Split(' ');
+			
+			// constructing student object and adding it to the list of students
+			Student student = new Student(id, name);
+			AddGrades(grades, student);
 			_students.Add(student);
 			
 			// clearing console and printing menu again to prevent clutter
