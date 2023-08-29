@@ -1,106 +1,196 @@
-﻿namespace StudentManager
+﻿using System.Diagnostics;
+using ConsoleFunctions;
+using GenericParse;
+
+namespace StudentManager
 {
 	class Program
 	{
-		static List<Student> students = new List<Student>();
+		private static List<Student> _students = new List<Student>();
+
+		// splitting menu options into separate string arrays for "easier" sorting
+		private static readonly string[] StudentOptions =
+			{ "Add new student", "Remove student via ID", "Update student information" };
+
+		private static readonly string[] StudentParsingOptions =
+			{ "View all students", "Find student with highest average grade" };
+
+		private static readonly string[] ProgramOptions = { "Exit program" };
+
+		private static bool _loopMain = true;
 
 		static void Main(string[] args)
 		{
+			// combining array lengths to find the range of selectable menu options
+			int menuOptionCount = StudentOptions.Length + StudentParsingOptions.Length + ProgramOptions.Length;
+
+			while (_loopMain)
+			{
+				PrintMenu();
+
+				SelectMenuOption();
+			}
+		}
+
+		/// <summary>
+		/// Displays all menu options in the console.
+		/// </summary>
+		static void PrintMenu()
+		{
+			// saving all option arrays in an array of string arrays and calling printing them via a foreach loop.
+			// if you want a unique option that doesn't really fit in a array with other options, just make it an
+			// array with a single entry and add it to the local array below.
+			string[][] tempArray = { StudentOptions, StudentParsingOptions, ProgramOptions };
+			int tempIndex = 0;
+
+			// printing options to console
+			Console.WriteLine("Student Record Management System");
+			foreach (var option in tempArray)
+			{
+				for (int i = 0; i < option.Length; i++)
+				{
+					Console.WriteLine($"{tempIndex + 1}. {option[i]}");
+					tempIndex++;
+				}
+			}
+			ConsoleHelper.PrintBlank();
+		}
+
+		/// <summary>
+		/// Waits for user input and calls SwitchOnMenuSelection(), passing the user's input as a parameter.
+		/// </summary>
+		private static void SelectMenuOption()
+		{
+			// looping until a valid option is selected
 			while (true)
 			{
-				Console.WriteLine("Student Record Management System");
-				Console.WriteLine("1. Add a student");
-				Console.WriteLine("2. Remove a student by ID");
-				Console.WriteLine("3. Update student information");
-				Console.WriteLine("4. View all students");
-				Console.WriteLine("5. Find student with the highest average grade");
-				Console.WriteLine("6. Exit");
-				Console.Write("Select an option: ");
+				Console.Write("Select option: ");
+				int tempSelect = GenericReadLine.TryReadLine<int>();
 
-				int choice = int.Parse(Console.ReadLine());
-
-				switch (choice)
+				if (!SwitchOnMenuSelection(tempSelect))
 				{
-					case 1:
-						AddStudent();
-						break;
-					case 2:
-						RemoveStudent();
-						break;
-					case 3:
-						UpdateStudent();
-						break;
-					case 4:
-						ViewAllStudents();
-						break;
-					case 5:
-						FindHighestAverageGrade();
-						break;
-					case 6:
-						Console.WriteLine("Exiting...");
-						return;
-					default:
-						Console.WriteLine("Invalid choice. Please select a valid option.");
-						break;
+					break;
 				}
 			}
 		}
 
+		/// <summary>
+		/// Uses a switch statement to call the appropriate method based on the user's menu selection.
+		/// </summary>
+		/// <param name="selection">The user's menu selection</param>
+		/// <returns>The desired loop state</returns>
+		private static bool SwitchOnMenuSelection(int selection)
+		{
+			bool tempReturnValue = true;
+
+			// clearing console and printing menu again to prevent clutter
+			Console.Clear();
+			PrintMenu();
+
+			switch (selection)
+			{
+				case 1: // Add new student
+					AddStudent();
+					break;
+				case 2: // Remove student via ID
+					RemoveStudent();
+					break;
+				case 3: // Update student information
+					UpdateStudent();
+					break;
+				case 4: // View all students
+					ViewAllStudents();
+					break;
+				case 5: // Find student with highest average grade
+					FindHighestAverageGrade();
+					break;
+				case 6: // Exit program
+					tempReturnValue = false;
+					_loopMain = false;
+					Console.WriteLine("Exiting program.");
+					break;
+				default: // Invalid selection
+					ConsoleHelper.PrintInvalidSelection();
+					break;
+			}
+			ConsoleHelper.PrintBlank();
+			return tempReturnValue;
+		}
+
+		/// <summary>
+		/// Adds new student to the list of students with a unique ID, name and grades.
+		/// </summary>
 		static void AddStudent()
 		{
 			Student student = new Student();
 
-			Console.Write("Enter student ID: ");
-			int id = int.Parse(Console.ReadLine());
-
-			if (StudentExists(id))
+			// Loop until we get a unique ID
+			while (true)
 			{
-				Console.WriteLine("Student with this ID already exists.");
-				return;
-			}
+				Console.Write("Enter student ID: ");
+				int tempID = GenericReadLine.TryReadLine<int>();
 
-			student.ID = id;
+				if (StudentExists(tempID))
+				{
+					Console.WriteLine("Student with this ID already exists.");
+				}
+				else
+				{
+					student.ID = tempID;
+					break;
+				}
+			}
 
 			Console.Write("Enter student name: ");
 			student.Name = Console.ReadLine();
 
 			Console.Write("Enter grades (separated by spaces): ");
-			string[] gradeStrings = Console.ReadLine().Split(' ');
-			foreach (string gradeString in gradeStrings)
-			{
-				if (double.TryParse(gradeString, out double grade))
-				{
-					student.Grades.Add(grade);
-				}
-			}
+			string[] studentGrades = Console.ReadLine().Split(' ');
 
-			students.Add(student);
+			AddGrades(studentGrades, student);
+
+			_students.Add(student);
+			
+			// clearing console and printing menu again to prevent clutter
+			Console.Clear();
+			PrintMenu();
+
+			// printing blank line to separate output
 			Console.WriteLine("Student added successfully.");
+			
 		}
 
+		/// <summary>
+		/// Removes a student from the list of students using their ID.
+		/// </summary>
 		static void RemoveStudent()
 		{
 			Console.Write("Enter student ID to remove: ");
-			int id = int.Parse(Console.ReadLine());
+			int id = GenericReadLine.TryReadLine<int>();
 
-			Student studentToRemove = students.Find(s => s.ID == id);
+			Student studentToRemove = _students.Find(s => s.ID == id);
+
 			if (studentToRemove != null)
 			{
-				students.Remove(studentToRemove);
+				_students.Remove(studentToRemove);
 				Console.WriteLine("Student removed successfully.");
 			}
 			else
 			{
-				Console.WriteLine("Student not found.");
+				PrintNoStudentsFound();
 			}
 		}
 
+		/// <summary>
+		/// Takes a student ID and allows the user to update the student's name and grades.
+		/// </summary>
 		static void UpdateStudent()
 		{
 			Console.Write("Enter student ID to update: ");
-			int id = int.Parse(Console.ReadLine());
+			int id = GenericReadLine.TryReadLine<int>();
 
-			Student studentToUpdate = students.Find(s => s.ID == id);
+			Student studentToUpdate = _students.Find(s => s.ID == id);
+
 			if (studentToUpdate != null)
 			{
 				Console.Write("Enter new student name: ");
@@ -108,28 +198,46 @@
 
 				Console.Write("Enter new grades (separated by spaces): ");
 				string[] gradeStrings = Console.ReadLine().Split(' ');
+
 				studentToUpdate.Grades.Clear();
-				foreach (string gradeString in gradeStrings)
-				{
-					if (double.TryParse(gradeString, out double grade))
-					{
-						studentToUpdate.Grades.Add(grade);
-					}
-				}
+
+				AddGrades(gradeStrings, studentToUpdate);
 
 				Console.WriteLine("Student information updated successfully.");
 			}
 			else
 			{
-				Console.WriteLine("Student not found.");
+				PrintNoStudentsFound();
+			}
+		}
+
+		private static void AddGrades(string[] grades, Student student)
+		{
+			foreach (string grade in grades)
+			{
+				if (double.TryParse(grade, out double tempGrade))
+				{
+					student.Grades.Add(tempGrade);
+				}
+				else
+				{
+					Console.WriteLine($"Invalid grade: {grade}");
+				}
 			}
 		}
 
 		static void ViewAllStudents()
 		{
-			foreach (Student student in students)
+			if (_students.Count <= 0)
 			{
-				Console.WriteLine($"ID: {student.ID}, Name: {student.Name}, Grades: {string.Join(", ", student.Grades)}");
+				PrintNoStudentsFound();
+			}
+			else
+			{
+				foreach (Student student in _students)
+				{
+					Console.WriteLine($"ID: {student.ID}, Name: {student.Name}, Grades: {string.Join(", ", student.Grades)}");
+				}
 			}
 		}
 
@@ -138,7 +246,7 @@
 			double highestAverage = 0;
 			Student studentWithHighestAverage = null;
 
-			foreach (Student student in students)
+			foreach (Student student in _students)
 			{
 				double average = CalculateAverage(student.Grades);
 				if (average > highestAverage)
@@ -154,7 +262,7 @@
 			}
 			else
 			{
-				Console.WriteLine("No students found.");
+				PrintNoStudentsFound();
 			}
 		}
 
@@ -172,9 +280,16 @@
 			return sum / grades.Count;
 		}
 
-		static bool StudentExists(int id)
+		public static bool StudentExists(int id)
 		{
-			return students.Exists(s => s.ID == id);
+			return _students.Exists(s => s.ID == id);
 		}
+
+		public static void PrintNoStudentsFound()
+		{
+			Console.WriteLine("No student(s) found.");
+		}
+
+
 	}
 }
