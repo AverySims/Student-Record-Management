@@ -2,14 +2,15 @@
 {
 	public class Student
 	{
-		public Student(int id, string name)
+		public Student(int id, string name, List<double> grades)
 		{
 			ID = id;
 			Name = name;
+			Grades = grades;
 		}
 		
 		public int ID { get; set; }
 		public string Name { get; set; }
-		public List<double> Grades { get; set; } = new List<double>();
+		public List<double> Grades { get; set; }
 	}
 }
