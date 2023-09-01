@@ -1,6 +1,5 @@
-﻿using ConsoleFunctions;
-using GenericParse;
-
+﻿using GenericParse;
+using CustomConsole;
 namespace StudentManager
 {
 	class Program
@@ -46,19 +45,11 @@ namespace StudentManager
 			// if you want a unique option that doesn't really fit in a array with other options, just make it an
 			// array with a single entry and add it to the local array below.
 			string[][] tempArray = { StudentOptions, StudentParsingOptions, ProgramOptions };
-			int tempIndex = 0;
 
 			// printing options to console
 			Console.WriteLine("Student Record Management System");
-			foreach (var option in tempArray)
-			{
-				for (int i = 0; i < option.Length; i++)
-				{
-					Console.WriteLine($"{tempIndex + 1}. {option[i]}");
-					tempIndex++;
-				}
-			}
-			ConsoleHelper.PrintBlank();
+			ConsoleHelper.PrintStrings(tempArray);
+			
 		}
 
 		/// <summary>
@@ -69,6 +60,7 @@ namespace StudentManager
 			// looping until a valid option is selected
 			while (true)
 			{
+				ConsoleHelper.PrintBlank();
 				Console.Write("Select option: ");
 				int tempSelect = GenericReadLine.TryReadLine<int>();
 
@@ -91,6 +83,7 @@ namespace StudentManager
 			// clearing console and printing menu again to prevent clutter
 			Console.Clear();
 			PrintMenu();
+			ConsoleHelper.PrintBlank();
 
 			switch (selection)
 			{
@@ -99,10 +92,12 @@ namespace StudentManager
 					break;
 				case 2: // Remove student via ID
 					ViewAllStudents();
+					ConsoleHelper.PrintBlank();
 					RemoveStudent();
 					break;
 				case 3: // Update student information
 					ViewAllStudents();
+					ConsoleHelper.PrintBlank();
 					UpdateStudent();
 					break;
 				case 4: // View all students
@@ -120,7 +115,6 @@ namespace StudentManager
 					ConsoleHelper.PrintInvalidSelection();
 					break;
 			}
-			ConsoleHelper.PrintBlank();
 			return tempReturnValue;
 		}
 		#endregion
@@ -222,13 +216,6 @@ namespace StudentManager
 		/// </summary>
 		static void AddStudent()
 		{
-			/*
-			 *
-			// clearing console and printing menu again to prevent clutter
-			Console.Clear();
-			PrintMenu();
-			 */
-
 			// constructing student object and adding it to the list of students
 			Student tempStudent = new Student(MakeStudentId(), MakeStudentName(), MakeStudentGrades());
 			
@@ -309,7 +296,7 @@ namespace StudentManager
 
 			foreach (Student student in _students)
 			{
-				double average = CalculateAverage(student.Grades);
+				double average = student.AverageGrade;
 				if (average > highestAverage)
 				{
 					highestAverage = average;
@@ -319,7 +306,8 @@ namespace StudentManager
 
 			if (studentWithHighestAverage != null)
 			{
-				Console.WriteLine($"Student with highest average grade: ID: {studentWithHighestAverage.ID}, Name: {studentWithHighestAverage.Name}, Average Grade: {highestAverage}");
+				Console.WriteLine("Student with highest average grade: ");
+				Console.WriteLine($"ID: {studentWithHighestAverage.ID}, Name: {studentWithHighestAverage.Name}, Average Grade: {highestAverage}");
 			}
 			else
 			{
@@ -327,20 +315,6 @@ namespace StudentManager
 			}
 		}
 		#endregion
-
-		static double CalculateAverage(List<double> grades)
-		{
-			if (grades.Count == 0)
-			{
-				return 0;
-			}
-			double sum = 0;
-			foreach (double grade in grades)
-			{
-				sum += grade;
-			}
-			return sum / grades.Count;
-		}
 
 		public static void PrintNoStudentsFound()
 		{
