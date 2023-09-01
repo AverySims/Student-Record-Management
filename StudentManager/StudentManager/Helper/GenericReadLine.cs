@@ -10,8 +10,7 @@ namespace GenericParse
 			{
 				try
 				{
-					// T value;
-					if (AttemptParse(Console.ReadLine(), out T value))
+					if (AttemptParse(Console.ReadLine() ?? " ", out T value))
 					{
 						return value;
 					}

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Xml.Linq;
-using ConsoleFunctions;
+﻿using ConsoleFunctions;
 using GenericParse;
 
 namespace StudentManager

@@ -1,40 +1,44 @@
 ﻿using System;
 using GenericParse;
 
-namespace ConsoleFunctions
+namespace CustomConsole
 {
 	static class ConsoleHelper
 	{
 		public static void SelectEndingAction(out bool mainLoop)
 		{
+			// reset loop state before entering loop
+			bool tempLoopValue = false;
+			bool loopEndingSelector = true;
+
 			Console.WriteLine("Choose what happens next:");
+			PrintBlank();
 			Console.WriteLine("1. Restart program");
 			Console.WriteLine("2. Quit program");
 
-			bool loopValid = false;
-			bool tempLoopValue = false;
-			do
+			while (loopEndingSelector)
 			{
-				int tempSelect = GenericReadLine.TryReadLine<int>();
-				switch (tempSelect)
+				int userSelection = GenericReadLine.TryReadLine<int>();
+				switch (userSelection)
 				{
 					case 1:
-						loopValid = !loopValid;
+						loopEndingSelector = false;
 						tempLoopValue = true;
 						Console.Clear(); // clear screen to make room for new info
 						break;
 
 					case 2:
-						loopValid = !loopValid;
+						loopEndingSelector = false;
 						tempLoopValue = false;
+						PrintBlank(); // write buffer line to keep results on-screen after program ends
 						break;
 
 					default:
+						tempLoopValue = true;
 						PrintInvalidSelection();
 						break;
 				}
-			} while (!loopValid);
-
+			}
 			// "The Out Parameter must be assigned before control leaves the current method"
 			// So we just use a temp value and assign it
 			// to the actual value once the switch is over
@@ -50,7 +54,30 @@ namespace ConsoleFunctions
 		}
 		#endregion
 
-		#region Printing
+		#region Menu Printing
+		public static void PrintStrings(string[] strings)
+		{
+			for (int i = 0; i < strings.Length; i++)
+			{
+				Console.WriteLine($"{i + 1}. {strings[i]}");
+			}
+		}
+
+		public static void PrintStrings(string[][] strings)
+		{
+			int tempIndex = 0;
+			foreach (var menu in strings)
+			{
+				for (int i = 0; i < menu.Length; i++)
+				{
+					tempIndex++;
+					Console.WriteLine($"{tempIndex}. {menu[i]}");
+				}
+			}
+		}
+		#endregion
+
+		#region Basic Printing
 		public static void PrintBlank()
 		{
 			Console.WriteLine();
@@ -58,13 +85,18 @@ namespace ConsoleFunctions
 
 		public static void PrintValue<T>(T val)
 		{
-			Console.WriteLine($"Value is: {val}");
+			Console.WriteLine($"{nameof(val)} is: {val}");
 		}
 
 		public static void PrintInvalidSelection()
 		{
-			Console.WriteLine("Invalid selection, please select a listed option.");
+			Console.WriteLine("Invalid entry, please try again.");
 		}
 		#endregion
+		
+		public static bool ListEmpty<T>(List<T> list)
+		{
+			return !(list.Count > 0);
+		}
 	}
 }
