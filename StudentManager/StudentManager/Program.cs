@@ -307,7 +307,7 @@ namespace StudentManager
 			if (studentWithHighestAverage != null)
 			{
 				Console.WriteLine("Student with highest average grade: ");
-				Console.WriteLine($"ID: {studentWithHighestAverage.ID}, Name: {studentWithHighestAverage.Name}, Average Grade: {highestAverage}");
+				Console.WriteLine($"ID: {studentWithHighestAverage.ID}, Name: {studentWithHighestAverage.Name}, Average Grade: {highestAverage:F}");
 			}
 			else
 			{
